@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,9 @@ public class UserController {
 	
 	@Autowired
 	private FastDFSClient fastDFSClient;
+
+	@Value("${pic.path}")
+	private String picPath;//用户头像存储路径
 
 	/**
 	 * @Description: 用户注册/登录
@@ -78,7 +82,7 @@ public class UserController {
 		
 		// 获取前端传过来的base64字符串, 然后转换为文件对象再上传
 		String base64Data = userBO.getFaceData();
-		String userFacePath = "C:\\" + userBO.getUserId() + "userface64.png";
+		String userFacePath = picPath + "/" + userBO.getUserId() + "_userface64.png";
 		FileUtils.base64ToFile(userFacePath, base64Data);
 		
 		// 上传文件到fastdfs
@@ -93,13 +97,13 @@ public class UserController {
 		String thump = "_80x80.";
 		String arr[] = url.split("\\.");
 		String thumpImgUrl = arr[0] + thump + arr[1];
-		
+
 		// 更细用户头像
 		Users user = new Users();
 		user.setId(userBO.getUserId());
 		user.setFaceImage(thumpImgUrl);
 		user.setFaceImageBig(url);
-		
+
 		Users result = userService.updateUserInfo(user);
 		
 		return IMoocJSONResult.ok(result);

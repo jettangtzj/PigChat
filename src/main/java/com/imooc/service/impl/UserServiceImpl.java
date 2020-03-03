@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,10 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private FastDFSClient fastDFSClient;
+
+
+	@Value("${pic.qrcode.path}")
+	private String picQrcodePath;//用户二维码存储路径
 	
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
@@ -99,19 +104,20 @@ public class UserServiceImpl implements UserService {
 		String userId = sid.nextShort();
 		
 		// 为每个用户生成一个唯一的二维码
-		String qrCodePath = "C://user" + userId + "qrcode.png";
+		String qrCodePath = picQrcodePath + "/" + userId + "_qrcode.png";
 		// muxin_qrcode:[username]
 		qrCodeUtils.createQRCode(qrCodePath, "muxin_qrcode:" + user.getUsername());
 		MultipartFile qrCodeFile = FileUtils.fileToMultipart(qrCodePath);
 		
-		String qrCodeUrl = "";
-		try {
-			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		user.setQrcode(qrCodeUrl);
-		
+//		String qrCodeUrl = "";
+//		try {
+//			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		user.setQrcode(qrCodeUrl);
+		user.setQrcode(qrCodePath);
+
 		user.setId(userId);
 		userMapper.insert(user);
 		

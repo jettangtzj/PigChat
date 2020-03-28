@@ -7,5 +7,6 @@
 }
 
 .mui-bar-tab .mui-tab-item.mui-active {
+	z-index: 9999;
 	color: #c9394a;
 }
